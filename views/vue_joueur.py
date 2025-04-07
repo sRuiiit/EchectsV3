@@ -41,8 +41,10 @@ def afficher_joueur(joueur):
 
 def afficher_liste_joueurs(joueurs):
     print("\nListe des joueurs :")
-    for joueur in joueurs:
-        print("-", joueur)
+    for i, joueur in enumerate(joueurs, 1):
+        print(f"{i}. {joueur.nom} {joueur.prenom} "
+              f"(ID: {joueur.id_joueur}, Classement: {joueur.classement}, "
+              f"Né(e) le: {getattr(joueur, 'date_naissance', 'Non renseigné')})")
 
 def obtenir_donnees_joueur():
     print("\nCréation d'un nouveau joueur :")
