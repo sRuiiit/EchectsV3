@@ -16,6 +16,9 @@ class ControleurTournoi:
     def creer_tournoi(self):
         nom, lieu, date_debut, date_fin, nb_tours, description = obtenir_donnees_tournoi()
 
+        # Ensure nb_tours is an integer
+        nb_tours = int(nb_tours) if nb_tours.isdigit() else 4
+
         joueurs_disponibles = self.db.get_all_players()
         if not joueurs_disponibles:
             print("⚠️ Aucun joueur disponible. Créez des joueurs d'abord.")
@@ -48,7 +51,7 @@ class ControleurTournoi:
             joueurs=joueurs_selectionnes,
             tours=[],
             id_tournoi=None,
-            nb_tours=nb_tours,
+            nb_tours=nb_tours,  # This is now guaranteed to be an integer
             tour_actuel=0,
             description=description
         )
