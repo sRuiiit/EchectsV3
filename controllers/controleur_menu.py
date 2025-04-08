@@ -10,7 +10,8 @@ class ControleurMenu:
             print("\n=== MENU PRINCIPAL ===")
             print("1. Gérer les joueurs")
             print("2. Gérer les tournois")
-            print("3. Quitter")
+            print("3. Voir le récapitulatif du tournoi")
+            print("4. Quitter")
 
             choix = input("Votre choix : ")
 
@@ -19,6 +20,10 @@ class ControleurMenu:
             elif choix == "2":
                 self.menu_tournois()
             elif choix == "3":
+                tournoi = self.controleur_tournoi.selectionner_tournoi()
+                if tournoi:
+                    self.controleur_tournoi.afficher_recapitulatif(tournoi)
+            elif choix == "4":
                 print("À bientôt !")
                 break
             else:

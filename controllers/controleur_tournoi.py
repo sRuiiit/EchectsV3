@@ -9,9 +9,16 @@ from views.vue_joueur import afficher_liste_joueurs
 import random
 from collections import defaultdict
 
+from views.vue_tournoi import afficher_recapitulatif_tournoi
+
+
 class ControleurTournoi:
     def __init__(self, db):
         self.db = db
+
+    # Ajouter cette méthode pour afficher le récapitulatif à tout moment
+    def afficher_recapitulatif(self, tournoi):
+        afficher_recapitulatif_tournoi(tournoi)
 
     def creer_tournoi(self):
         nom, lieu, date_debut, date_fin, nb_tours, description = obtenir_donnees_tournoi()
