@@ -146,12 +146,16 @@ class ControleurTournoi:
         print("✅ Résultats enregistrés.")
 
     def calcul_scores(self, tournoi):
-        scores = defaultdict(float)
+        scores = defaultdict(float)  # Utilisation de defaultdict pour initialiser les scores à 0.0
+
+        # Parcours de chaque tour du tournoi
         for tour in tournoi.tours:
+            # Parcours des matchs dans chaque tour
             for match in tour.liste_matchs:
-                if match.resultat:
-                    scores[match.joueur1.id_joueur] += match.resultat[0]
-                    scores[match.joueur2.id_joueur] += match.resultat[1]
+                if match.resultat:  # On vérifie que le résultat existe
+                    scores[match.joueur1.id_joueur] += match.resultat[0]  # Ajouter le score du joueur 1
+                    scores[match.joueur2.id_joueur] += match.resultat[1]  # Ajouter le score du joueur 2
+
         return scores
 
     def historique_matchs(self, tournoi):

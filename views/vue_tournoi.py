@@ -28,49 +28,41 @@ def afficher_details_tournoi(tournoi):
 
 # views/vue_tournoi.py
 
+# Importer la fonction calcul_scores depuis utils.py
+from models.utils import calcul_scores
+
 def afficher_recapitulatif_tournoi(tournoi):
-    """
-    Affiche un tableau récapitulatif des joueurs, des résultats de chaque tour et des scores totaux.
-    """
-    print(f"\n📝 Récapitulatif du tournoi : {tournoi.nom} ({tournoi.lieu})")
+    print(f"\nRécapitulatif du tournoi : {tournoi.nom}")
     print(f"Durée : {tournoi.date_debut} → {tournoi.date_fin}")
     print(f"Nombre de tours : {tournoi.nb_tours}")
     print(f"Description : {tournoi.description}")
+
+    # Calcul des scores totaux
+    scores = calcul_scores(tournoi)
+
+    # Affichage des joueurs et scores
     print("\nJoueurs inscrits :")
     print("------------------------------------------------------------")
-
-    # Afficher les joueurs
-    print(f"{'Nom':<20}{'Classement':<10}{'ID':<5}{'Score total'}")
-    print("-" * 50)
+    print(f"{'Nom':<20}{'ClassementID':<15}{'Score total'}")
+    print("------------------------------------------------------------")
     for joueur in tournoi.joueurs:
-        print(f"{joueur.nom} {joueur.prenom:<15}{joueur.classement:<10}{joueur.id_joueur:<5}")
+        print(f"{joueur.nom} {joueur.prenom:<15} {scores.get(joueur.id_joueur, 0):<10}")
 
+    # Affichage des résultats des tours
     print("\nRésultats des tours :")
     print("------------------------------------------------------------")
-
-    # Afficher les résultats des tours
     print(f"{'Tour':<10}{'Joueur 1':<20}{'Joueur 2':<20}{'Score Joueur 1':<15}{'Score Joueur 2'}")
-    print("-" * 60)
-
-    for i, tour in enumerate(tournoi.tours, start=1):
+    print("------------------------------------------------------------")
+    for tour in tournoi.tours:
         for match in tour.liste_matchs:
             print(f"{tour.nom:<10}{match.joueur1.nom:<20}{match.joueur2.nom:<20}"
                   f"{match.resultat[0]:<15}{match.resultat[1]}")
 
-    # Afficher le classement final
+    # Classement final
     print("\nClassement final :")
     print("------------------------------------------------------------")
-    scores = {joueur.id_joueur: 0 for joueur in tournoi.joueurs}
-
-    # Calculer les scores totaux
-    for tour in tournoi.tours:
-        for match in tour.liste_matchs:
-            scores[match.joueur1.id_joueur] += match.resultat[0]
-            scores[match.joueur2.id_joueur] += match.resultat[1]
-
-    classement = sorted(tournoi.joueurs, key=lambda j: scores[j.id_joueur], reverse=True)
-
-    print(f"{'Nom':<20}{'Classement':<10}{'Score final'}")
-    print("-" * 50)
+    print(f"{'Nom':<20}{'Classement':<15}{'Score final'}")
+    print("------------------------------------------------------------")
+    classement = sorted(tournoi.joueurs, key=lambda j: scores.get(j.id_joueur, 0), reverse=True)
     for joueur in classement:
-        print(f"{joueur.nom} {joueur.prenom:<15}{joueur.classement:<10}{scores[joueur.id_joueur]:<10}")
+        print(f"{joueur.nom} {joueur.prenom:<15} {scores.get(joueur.id_joueur, 0)}")
