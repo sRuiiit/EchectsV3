@@ -14,5 +14,5 @@ if __name__ == "__main__":
     controleur_tournoi = ControleurTournoi(db)
 
     # Lancer le menu principal
-    menu = ControleurMenu(controleur_joueur, controleur_tournoi)
+    menu = ControleurMenu(controleur_joueur, controleur_tournoi)  # Pass the two controllers here
     menu.afficher_menu_principal()
