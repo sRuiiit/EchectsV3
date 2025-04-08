@@ -48,10 +48,9 @@ class ControleurMenu:
             print("1. Créer un tournoi")
             print("2. Afficher les tournois")
             print("3. Démarrer le premier tour")
-            print("4. Saisir les résultats du tour actuel")
-            print("5. Générer le tour suivant")
-            print("6. Voir les joueurs d’un tournoi")
-            print("7. Retour")
+            print("4. Générer le tour suivant")
+            print("5. Voir les joueurs d’un tournoi")
+            print("6. Retour")
 
             choix = input("Votre choix : ")
 
@@ -66,14 +65,12 @@ class ControleurMenu:
             elif choix == "4":
                 tournoi = self.controleur_tournoi.selectionner_tournoi()
                 if tournoi:
+                    self.controleur_tournoi.demarrer_tour_suivant(tournoi)
+                    # Saisie des résultats après chaque tour
                     self.controleur_tournoi.saisir_resultats_tour(tournoi)
             elif choix == "5":
-                tournoi = self.controleur_tournoi.selectionner_tournoi()
-                if tournoi:
-                    self.controleur_tournoi.demarrer_tour_suivant(tournoi)
-            elif choix == "6":
                 self.controleur_tournoi.afficher_joueurs_dun_tournoi()
-            elif choix == "7":
+            elif choix == "6":
                 break
             else:
                 print("Choix invalide.")

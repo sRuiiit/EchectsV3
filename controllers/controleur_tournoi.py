@@ -157,6 +157,10 @@ class ControleurTournoi:
             print("✅ Tous les tours ont été joués.")
             return
 
+        # Demander la saisie des résultats pour le tour en cours
+        self.saisir_resultats_tour(tournoi)
+
+        # Calculer les scores et organiser les appariements pour le tour suivant
         scores = self.calcul_scores(tournoi)
         joueurs = sorted(tournoi.joueurs, key=lambda j: (-scores.get(j.id_joueur, 0), j.nom))
         rencontres_existantes = self.historique_matchs(tournoi)
@@ -165,6 +169,7 @@ class ControleurTournoi:
         deja_paires = set()
         i = 0
 
+        # Générer les appariements pour le tour suivant
         while i < len(joueurs) - 1:
             joueur1 = joueurs[i]
             for j in range(i + 1, len(joueurs)):
@@ -176,18 +181,23 @@ class ControleurTournoi:
                     break
             i += 1
 
+        # Gérer les joueurs sans adversaire
         if len(joueurs) % 2 == 1:
             for joueur in joueurs:
                 if joueur.id_joueur not in deja_paires:
                     appariements.append((joueur, Joueur("BYE", "", "", 0, -1)))
                     break
 
+        # Créer un nouveau tour
         tournoi.tour_actuel += 1
         matches = [Match(j1, j2) for j1, j2 in appariements]
         nouveau_tour = Tour(f"Round {tournoi.tour_actuel}", matches)
         tournoi.tours.append(nouveau_tour)
         self.db.update_tournament(tournoi)
         print(f"🌀 Round {tournoi.tour_actuel} généré avec {len(matches)} matchs.")
+
+        # Demander la saisie des résultats pour ce tour
+        self.saisir_resultats_tour(tournoi)
 
     def afficher_joueurs_dun_tournoi(self):
         tournoi = self.selectionner_tournoi()
