@@ -101,17 +101,20 @@ class ControleurTournoi:
         random.shuffle(tournoi.joueurs)
         liste_matchs = []
 
+        # Créer les matchs du premier tour
         for i in range(0, len(tournoi.joueurs) - 1, 2):
             joueur1 = tournoi.joueurs[i]
             joueur2 = tournoi.joueurs[i + 1]
             match = Match(joueur1, joueur2)
             liste_matchs.append(match)
 
+        # Gérer le cas où il y a un joueur sans adversaire (bye)
         if len(tournoi.joueurs) % 2 == 1:
             joueur_sans_match = tournoi.joueurs[-1]
             match = Match(joueur_sans_match, Joueur("BYE", "", "", 0, -1), (1.0, 0.0))
             liste_matchs.append(match)
 
+        # Création du tour
         nom_tour = "Round 1"
         tour = Tour(nom_tour, liste_matchs)
         tournoi.tours.append(tour)
@@ -119,6 +122,9 @@ class ControleurTournoi:
         self.db.update_tournament(tournoi)
 
         print(f"✅ {nom_tour} démarré avec {len(liste_matchs)} matchs.")
+
+        # Appeler directement la fonction pour saisir les résultats après le premier tour
+        self.saisir_resultats_tour(tournoi)  # Ajouté ici pour saisir les résultats juste après le démarrage du tour.
 
     def saisir_resultats_tour(self, tournoi):
         if tournoi.tour_actuel == 0 or tournoi.tour_actuel > len(tournoi.tours):
