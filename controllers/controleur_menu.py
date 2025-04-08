@@ -22,10 +22,10 @@ class ControleurMenu:
             elif choix == "3":
                 tournoi = self.controleur_tournoi.selectionner_tournoi()
                 if tournoi:
-                    self.controleur_tournoi.afficher_recapitulatif(tournoi)
+                    self.controleur_tournoi.afficher_recapitulatif(tournoi)  # Affiche le récapitulatif
             elif choix == "4":
                 print("À bientôt !")
-                break
+                break  # Quitte l'application
             else:
                 print("Choix invalide. Réessayez.")
 
