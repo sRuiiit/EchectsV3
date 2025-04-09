@@ -12,9 +12,10 @@ class ControleurMenu:
             print("1. Gérer les joueurs")
             print("2. Créer un nouveau tournoi")
             print("3. Charger un tournoi existant")
-            print("4. Gérer le round (créer ou continuer)")
-            print("5. Afficher le récapitulatif du tournoi")
-            print("6. Quitter")
+            print("4. Afficher le plan du tournoi")
+            print("5. Gérer le round (créer ou continuer)")
+            print("6. Afficher le récapitulatif du tournoi")
+            print("7. Quitter")
 
             choix = input("Choisissez une option : ")
 
@@ -26,15 +27,20 @@ class ControleurMenu:
                 self.tournoi_actuel = self.controleur_tournoi.selectionner_tournoi()
             elif choix == "4":
                 if self.tournoi_actuel:
+                    self.controleur_tournoi.afficher_plan_tournoi(self.tournoi_actuel)
+                else:
+                    print("⚠️ Aucun tournoi chargé.")
+            elif choix == "5":
+                if self.tournoi_actuel:
                     self.controleur_tournoi.gerer_round(self.tournoi_actuel)
                 else:
                     print("⚠️ Aucun tournoi chargé. Veuillez en créer ou en charger un d'abord.")
-            elif choix == "5":
+            elif choix == "6":
                 if self.tournoi_actuel:
                     self.controleur_tournoi.afficher_recapitulatif(self.tournoi_actuel)
                 else:
                     print("⚠️ Aucun tournoi chargé.")
-            elif choix == "6":
+            elif choix == "7":
                 print("Au revoir !")
                 break
             else:
@@ -66,7 +72,8 @@ class ControleurMenu:
             print("3. Démarrer le premier tour")
             print("4. Générer le tour suivant")
             print("5. Voir les joueurs d’un tournoi")
-            print("6. Retour")
+            print("6. Voir le plan du tournoi")
+            print("7. Retour")
 
             choix = input("Votre choix : ")
 
@@ -86,6 +93,10 @@ class ControleurMenu:
             elif choix == "5":
                 self.controleur_tournoi.afficher_joueurs_dun_tournoi()
             elif choix == "6":
+                tournoi = self.controleur_tournoi.selectionner_tournoi()
+                if tournoi:
+                    self.controleur_tournoi.afficher_plan_tournoi(tournoi)
+            elif choix == "7":
                 break
             else:
                 print("Choix invalide.")

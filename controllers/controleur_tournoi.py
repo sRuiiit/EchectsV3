@@ -61,6 +61,25 @@ class ControleurTournoi:
         print(f"✅ Tournoi '{nom}' créé avec {len(joueurs_selectionnes)} joueurs.")
         return tournoi
 
+    def afficher_plan_tournoi(self, tournoi):
+        print(f"\n📅 Plan du tournoi : {tournoi.nom}")
+        print("-------------------------------------------")
+        if not tournoi.tours:
+            print("Aucun round encore généré pour ce tournoi.")
+            return
+
+        for i, tour in enumerate(tournoi.tours, 1):
+            print(f"Round {i} :")
+            for match in tour.liste_matchs:
+                if match.joueur2.nom == "BYE":
+                    print(f" - {match.joueur1.nom} (joue seul - BYE)")
+                else:
+                    if match.resultat:
+                        print(f" - {match.joueur1.nom} vs {match.joueur2.nom} [{match.resultat[0]} - {match.resultat[1]}]")
+                    else:
+                        print(f" - {match.joueur1.nom} vs {match.joueur2.nom} (à jouer)")
+            print()
+
     def selectionner_tournoi(self):
         tournois = self.db.get_all_tournaments()
         if not tournois:
@@ -80,6 +99,23 @@ class ControleurTournoi:
                     print("Numéro invalide. Réessayez.")
             except ValueError:
                 print("Entrée non valide. Entrez un nombre.")
+
+    def afficher_plan_tournoi(self, tournoi):
+        print(f"\n📅 Plan du tournoi : {tournoi.nom}")
+        print("-------------------------------------------")
+        for i, tour in enumerate(tournoi.tours, 1):
+            print(f"Round {i} :")
+            for match in tour.liste_matchs:
+                if match.joueur2.nom == "BYE":
+                    print(f" - {match.joueur1.nom} (joue seul - BYE)")
+                else:
+                    resultat = ""
+                    if match.resultat:
+                        resultat = f" [{match.resultat[0]} - {match.resultat[1]}]"
+                    print(f" - {match.joueur1.nom} vs {match.joueur2.nom}{resultat}")
+            print()
+        if not tournoi.tours:
+            print("Aucun round encore généré pour ce tournoi.")
 
     def demander_resultat_match(self, joueur1, joueur2):
         while True:
