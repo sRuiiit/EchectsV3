@@ -81,17 +81,22 @@ class ControleurTournoi:
             except ValueError:
                 print("Entrée non valide. Entrez un nombre.")
 
-    def demander_score(self, joueur):
+    def demander_resultat_match(self, joueur1, joueur2):
         while True:
-            print(f"\nRésultat pour {joueur.nom} :")
-            print("  1 → Victoire")
-            print("  0.5 → Égalité")
-            print("  0 → Défaite")
-            choix = input("Entrez le score (1 / 0.5 / 0) : ").strip()
-            if choix in ["1", "0.5", "0"]:
-                return float(choix)
+            print(f"\nMatch : {joueur1.nom} vs {joueur2.nom}")
+            print("Qui a gagné ?")
+            print(f"1. {joueur1.nom}")
+            print(f"2. {joueur2.nom}")
+            print("3. Match nul")
+            choix = input("> ").strip()
+            if choix == "1":
+                return (1.0, 0.0)
+            elif choix == "2":
+                return (0.0, 1.0)
+            elif choix == "3":
+                return (0.5, 0.5)
             else:
-                print("⛔ Entrée invalide. Veuillez entrer 1, 0.5 ou 0.")
+                print("⛔ Choix invalide. Veuillez taper 1, 2 ou 3.")
 
     def historique_matchs(self, tournoi):
         rencontres = set()
@@ -160,9 +165,7 @@ class ControleurTournoi:
         print("\n📝 Saisie des résultats :")
         for match in matchs:
             if match.joueur2.nom != "BYE":
-                score1 = self.demander_score(match.joueur1)
-                score2 = self.demander_score(match.joueur2)
-                match.resultat = (score1, score2)
+                match.resultat = self.demander_resultat_match(match.joueur1, match.joueur2)
 
         nouveau_tour.date_heure_fin = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         tournoi.tours.append(nouveau_tour)
