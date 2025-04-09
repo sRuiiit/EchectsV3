@@ -25,9 +25,6 @@ def afficher_details_tournoi(tournoi):
     print(f"Nombre de tours : {tournoi.nb_tours}")
     print(f"Description : {tournoi.description}")
 
-
-# views/vue_tournoi.py
-
 # Importer la fonction calcul_scores depuis utils.py
 from models.utils import calcul_scores
 
@@ -42,27 +39,28 @@ def afficher_recapitulatif_tournoi(tournoi):
 
     # Affichage des joueurs et scores
     print("\nJoueurs inscrits :")
-    print("------------------------------------------------------------")
-    print(f"{'Nom':<20}{'ClassementID':<15}{'Score total'}")
-    print("------------------------------------------------------------")
+    print("----------------------------------------------------------------------")
+    print(f"{'Nom':<20}{'Prénom':<20}{'Score total':<15}")
+    print("----------------------------------------------------------------------")
     for joueur in tournoi.joueurs:
-        print(f"{joueur.nom} {joueur.prenom:<15} {scores.get(joueur.id_joueur, 0):<10}")
+        print(f"{joueur.nom:<20}{joueur.prenom:<20}{scores.get(joueur.id_joueur, 0):<15}")
 
     # Affichage des résultats des tours
     print("\nRésultats des tours :")
-    print("------------------------------------------------------------")
-    print(f"{'Tour':<10}{'Joueur 1':<20}{'Joueur 2':<20}{'Score Joueur 1':<15}{'Score Joueur 2'}")
-    print("------------------------------------------------------------")
+    print("--------------------------------------------------------------------------------------------------")
+    print(f"{'Tour':<10}{'Joueur 1':<20}{'Joueur 2':<20}{'Score Joueur 1':<20}{'Score Joueur 2':<20}")
+    print("--------------------------------------------------------------------------------------------------")
     for tour in tournoi.tours:
         for match in tour.liste_matchs:
-            print(f"{tour.nom:<10}{match.joueur1.nom:<20}{match.joueur2.nom:<20}"
-                  f"{match.resultat[0]:<15}{match.resultat[1]}")
+            score1 = match.resultat[0] if match.resultat is not None else "Non joué"
+            score2 = match.resultat[1] if match.resultat is not None else "Non joué"
+            print(f"{tour.nom:<10}{match.joueur1.nom:<20}{match.joueur2.nom:<20}{str(score1):<20}{str(score2):<20}")
 
     # Classement final
     print("\nClassement final :")
-    print("------------------------------------------------------------")
-    print(f"{'Nom':<20}{'Classement':<15}{'Score final'}")
-    print("------------------------------------------------------------")
+    print("----------------------------------------------------------------------")
+    print(f"{'Nom':<20}{'Prénom':<20}{'Score final':<15}")
+    print("----------------------------------------------------------------------")
     classement = sorted(tournoi.joueurs, key=lambda j: scores.get(j.id_joueur, 0), reverse=True)
     for joueur in classement:
-        print(f"{joueur.nom} {joueur.prenom:<15} {scores.get(joueur.id_joueur, 0)}")
+        print(f"{joueur.nom:<20}{joueur.prenom:<20}{scores.get(joueur.id_joueur, 0):<15}")
