@@ -9,31 +9,31 @@ class ControleurMenu:
     def afficher_menu_principal(self):
         while True:
             print("\nMenu Principal")
-            print("1. Créer un nouveau tournoi")
-            print("2. Charger un tournoi existant")
-            print("3. Gérer le round (créer ou continuer)")
-            print("4. Afficher le récapitulatif du tournoi")
-            print("5. Gérer les joueurs")
+            print("1. Gérer les joueurs")
+            print("2. Créer un nouveau tournoi")
+            print("3. Charger un tournoi existant")
+            print("4. Gérer le round (créer ou continuer)")
+            print("5. Afficher le récapitulatif du tournoi")
             print("6. Quitter")
 
             choix = input("Choisissez une option : ")
 
             if choix == "1":
-                self.tournoi_actuel = self.controleur_tournoi.creer_tournoi()
+                self.menu_joueurs()
             elif choix == "2":
-                self.tournoi_actuel = self.controleur_tournoi.selectionner_tournoi()
+                self.tournoi_actuel = self.controleur_tournoi.creer_tournoi()
             elif choix == "3":
+                self.tournoi_actuel = self.controleur_tournoi.selectionner_tournoi()
+            elif choix == "4":
                 if self.tournoi_actuel:
                     self.controleur_tournoi.gerer_round(self.tournoi_actuel)
                 else:
                     print("⚠️ Aucun tournoi chargé. Veuillez en créer ou en charger un d'abord.")
-            elif choix == "4":
+            elif choix == "5":
                 if self.tournoi_actuel:
                     self.controleur_tournoi.afficher_recapitulatif(self.tournoi_actuel)
                 else:
                     print("⚠️ Aucun tournoi chargé.")
-            elif choix == "5":
-                self.menu_joueurs()
             elif choix == "6":
                 print("Au revoir !")
                 break

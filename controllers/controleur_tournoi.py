@@ -17,13 +17,13 @@ class ControleurTournoi:
         afficher_recapitulatif_tournoi(tournoi)
 
     def creer_tournoi(self):
-        nom, lieu, date_debut, date_fin, nb_tours, description = obtenir_donnees_tournoi()
-        nb_tours = int(nb_tours) if nb_tours.isdigit() else 4
-
         joueurs_disponibles = self.db.get_all_players()
         if not joueurs_disponibles:
-            print("⚠️ Aucun joueur disponible. Créez des joueurs d'abord.")
-            return
+            print("⛔ Vous devez d'abord enregistrer des joueurs avant de créer un tournoi.")
+            return None
+
+        nom, lieu, date_debut, date_fin, nb_tours, description = obtenir_donnees_tournoi()
+        nb_tours = int(nb_tours) if nb_tours.isdigit() else 4
 
         print("\nVoici les joueurs disponibles :")
         afficher_liste_joueurs(joueurs_disponibles)
@@ -38,11 +38,11 @@ class ControleurTournoi:
                     joueurs_selectionnes.append(joueurs_disponibles[idx])
         except Exception as e:
             print(f"⚠️ Erreur lors de la sélection des joueurs : {e}")
-            return
+            return None
 
         if len(joueurs_selectionnes) < 2:
             print("⚠️ Il faut au moins 2 joueurs pour créer un tournoi.")
-            return
+            return None
 
         tournoi = Tournoi(
             nom=nom,
