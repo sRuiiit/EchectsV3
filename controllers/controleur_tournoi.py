@@ -93,6 +93,17 @@ class ControleurTournoi:
             else:
                 print("⛔ Entrée invalide. Veuillez entrer 1, 0.5 ou 0.")
 
+    def historique_matchs(self, tournoi):
+        rencontres = set()
+        for tour in tournoi.tours:
+            for match in tour.liste_matchs:
+                id1 = match.joueur1.id_joueur
+                id2 = match.joueur2.id_joueur
+                if id1 > id2:
+                    id1, id2 = id2, id1
+                rencontres.add((id1, id2))
+        return rencontres
+
     def gerer_round(self, tournoi):
         numero_tour = len(tournoi.tours) + 1
 
@@ -107,30 +118,57 @@ class ControleurTournoi:
         print(f"\n🎯 Création de {nom_round}...")
 
         scores = self.calcul_scores(tournoi)
-        joueurs_tries = sorted(tournoi.joueurs, key=lambda j: scores.get(j.id_joueur, 0), reverse=True)
-        matchs = []
+        joueurs = sorted(tournoi.joueurs, key=lambda j: scores.get(j.id_joueur, 0), reverse=True)
+        rencontres_existantes = self.historique_matchs(tournoi)
 
-        while len(joueurs_tries) >= 2:
-            joueur1 = joueurs_tries.pop(0)
-            joueur2 = joueurs_tries.pop(0)
-            matchs.append(Match(joueur1, joueur2))
+        appariements = []
+        deja_paires = set()
+        i = 0
+
+        while i < len(joueurs) - 1:
+            joueur1 = joueurs[i]
+            for j in range(i + 1, len(joueurs)):
+                joueur2 = joueurs[j]
+                paire = tuple(sorted([joueur1.id_joueur, joueur2.id_joueur]))
+                if paire not in rencontres_existantes and joueur2.id_joueur not in deja_paires:
+                    appariements.append((joueur1, joueur2))
+                    deja_paires.update([joueur1.id_joueur, joueur2.id_joueur])
+                    break
+            i += 1
+
+        joueurs_paires = set(j.id_joueur for p in appariements for j in p)
+        joueur_solo = next((j for j in joueurs if j.id_joueur not in joueurs_paires), None)
+        matchs = [Match(j1, j2) for j1, j2 in appariements]
+
+        if joueur_solo:
+            joueur_bye = Joueur("BYE", "", "", 0, -1)
+            match_bye = Match(joueur_solo, joueur_bye)
+            match_bye.resultat = (1.0, 0.0)
+            matchs.append(match_bye)
 
         nouveau_tour.liste_matchs = matchs
 
-        print("\n📋 Matchs du round :")
-        for match in matchs:
-            print(f"{match.joueur1.nom} vs {match.joueur2.nom}")
+        print("\n📋 Matchs du round à venir :")
+        print("---------------------------------------")
+        for i, match in enumerate(matchs, 1):
+            if match.joueur2.nom == "BYE":
+                print(f"{i}. {match.joueur1.nom} (joue seul - BYE)")
+            else:
+                print(f"{i}. {match.joueur1.nom} vs {match.joueur2.nom}")
+        print("---------------------------------------")
 
         print("\n📝 Saisie des résultats :")
         for match in matchs:
-            score1 = self.demander_score(match.joueur1)
-            score2 = self.demander_score(match.joueur2)
-            match.resultat = (score1, score2)
+            if match.joueur2.nom != "BYE":
+                score1 = self.demander_score(match.joueur1)
+                score2 = self.demander_score(match.joueur2)
+                match.resultat = (score1, score2)
 
         nouveau_tour.date_heure_fin = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         tournoi.tours.append(nouveau_tour)
         self.db.update_tournament(tournoi)
-        print(f"\n✅ {nom_round} terminé et enregistré.")
+        print(f"\n✅ {nom_round} terminé.")
+        print("💾 Sauvegarde automatique du tournoi effectuée.")
 
     def afficher_tournois(self):
         tournois = self.db.get_all_tournaments()
