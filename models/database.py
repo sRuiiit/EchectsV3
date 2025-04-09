@@ -5,7 +5,7 @@ from models.joueur import Joueur
 from models.tournoi import Tournoi
 
 class DatabaseManager:
-    def __init__(self, db_path="echiquier.json"):
+    def __init__(self, db_path="data/echiquier.json"):
         self.db = TinyDB(db_path)
         self.players_table = self.db.table("players")
         self.tournaments_table = self.db.table("tournaments")

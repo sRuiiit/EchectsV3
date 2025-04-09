@@ -39,6 +39,8 @@ echiquier/
 │   ├── vue_tournoi.py
 │   ├── vue_match.py
 │   └── vue_menu.py
+├── data/
+│   └── echiquier.json
 ├── main.py
 └── requirements.txt
 ```
@@ -71,7 +73,7 @@ pip install -r requirements.txt
 
 ### 💾 Base de données
 
-- Fichier JSON généré automatiquement : `echiquier.json`
+- Fichier TinyDB stocké ici : `data/echiquier.json`
 - Format de stockage léger avec [TinyDB](https://tinydb.readthedocs.io/en/latest/).
 
 ---
