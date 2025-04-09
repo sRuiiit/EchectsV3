@@ -71,7 +71,7 @@ pip install -r requirements.txt
 
 ### 💾 Base de données
 
-- Fichier JSON généré automatiquement : `db.json`
+- Fichier JSON généré automatiquement : `echiquier.json`
 - Format de stockage léger avec [TinyDB](https://tinydb.readthedocs.io/en/latest/).
 
 ---
