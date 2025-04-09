@@ -81,6 +81,18 @@ class ControleurTournoi:
             except ValueError:
                 print("Entrée non valide. Entrez un nombre.")
 
+    def demander_score(self, joueur):
+        while True:
+            print(f"\nRésultat pour {joueur.nom} :")
+            print("  1 → Victoire")
+            print("  0.5 → Égalité")
+            print("  0 → Défaite")
+            choix = input("Entrez le score (1 / 0.5 / 0) : ").strip()
+            if choix in ["1", "0.5", "0"]:
+                return float(choix)
+            else:
+                print("⛔ Entrée invalide. Veuillez entrer 1, 0.5 ou 0.")
+
     def gerer_round(self, tournoi):
         numero_tour = len(tournoi.tours) + 1
 
@@ -111,12 +123,9 @@ class ControleurTournoi:
 
         print("\n📝 Saisie des résultats :")
         for match in matchs:
-            try:
-                score1 = float(input(f"Score pour {match.joueur1.nom} : "))
-                score2 = float(input(f"Score pour {match.joueur2.nom} : "))
-                match.resultat = (score1, score2)
-            except ValueError:
-                print("⚠️ Saisie invalide. Entrez un nombre.")
+            score1 = self.demander_score(match.joueur1)
+            score2 = self.demander_score(match.joueur2)
+            match.resultat = (score1, score2)
 
         nouveau_tour.date_heure_fin = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         tournoi.tours.append(nouveau_tour)
