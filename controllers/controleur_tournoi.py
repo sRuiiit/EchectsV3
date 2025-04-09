@@ -1,5 +1,3 @@
-# controllers/controleur_tournoi.py
-
 from models.tournoi import Tournoi
 from models.joueur import Joueur
 from models.match import Match
@@ -8,22 +6,18 @@ from views.vue_tournoi import obtenir_donnees_tournoi, afficher_liste_tournois
 from views.vue_joueur import afficher_liste_joueurs
 import random
 from collections import defaultdict
-
 from views.vue_tournoi import afficher_recapitulatif_tournoi
-
+from datetime import datetime
 
 class ControleurTournoi:
     def __init__(self, db):
         self.db = db
 
-    # Ajouter cette méthode pour afficher le récapitulatif à tout moment
     def afficher_recapitulatif(self, tournoi):
         afficher_recapitulatif_tournoi(tournoi)
 
     def creer_tournoi(self):
         nom, lieu, date_debut, date_fin, nb_tours, description = obtenir_donnees_tournoi()
-
-        # Ensure nb_tours is an integer
         nb_tours = int(nb_tours) if nb_tours.isdigit() else 4
 
         joueurs_disponibles = self.db.get_all_players()
@@ -58,20 +52,14 @@ class ControleurTournoi:
             joueurs=joueurs_selectionnes,
             tours=[],
             id_tournoi=None,
-            nb_tours=nb_tours,  # This is now guaranteed to be an integer
+            nb_tours=nb_tours,
             tour_actuel=0,
             description=description
         )
 
         self.db.insert_tournament(tournoi)
         print(f"✅ Tournoi '{nom}' créé avec {len(joueurs_selectionnes)} joueurs.")
-
-    def afficher_tournois(self):
-        tournois = self.db.get_all_tournaments()
-        if not tournois:
-            print("Aucun tournoi trouvé.")
-            return
-        afficher_liste_tournois(tournois)
+        return tournoi
 
     def selectionner_tournoi(self):
         tournois = self.db.get_all_tournaments()
@@ -93,128 +81,63 @@ class ControleurTournoi:
             except ValueError:
                 print("Entrée non valide. Entrez un nombre.")
 
-    def demarrer_premier_tour(self, tournoi):
-        if not tournoi.joueurs or len(tournoi.joueurs) < 2:
-            print("Pas assez de joueurs pour démarrer le tournoi.")
+    def gerer_round(self, tournoi):
+        numero_tour = len(tournoi.tours) + 1
+
+        if numero_tour > int(tournoi.nb_tours):
+            print("✅ Tous les tours ont déjà été joués.")
             return
 
-        random.shuffle(tournoi.joueurs)
-        liste_matchs = []
+        nom_round = f"Round {numero_tour}"
+        date_debut = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        nouveau_tour = Tour(nom_round, date_debut)
 
-        # Créer les matchs du premier tour
-        for i in range(0, len(tournoi.joueurs) - 1, 2):
-            joueur1 = tournoi.joueurs[i]
-            joueur2 = tournoi.joueurs[i + 1]
-            match = Match(joueur1, joueur2)
-            liste_matchs.append(match)
+        print(f"\n🎯 Création de {nom_round}...")
 
-        # Gérer le cas où il y a un joueur sans adversaire (bye)
-        if len(tournoi.joueurs) % 2 == 1:
-            joueur_sans_match = tournoi.joueurs[-1]
-            match = Match(joueur_sans_match, Joueur("BYE", "", "", 0, -1), (1.0, 0.0))
-            liste_matchs.append(match)
-
-        # Création du tour
-        nom_tour = "Round 1"
-        tour = Tour(nom_tour, liste_matchs)
-        tournoi.tours.append(tour)
-        tournoi.tour_actuel = 1
-        self.db.update_tournament(tournoi)
-
-        print(f"✅ {nom_tour} démarré avec {len(liste_matchs)} matchs.")
-
-        # Appeler directement la fonction pour saisir les résultats après le premier tour
-        self.saisir_resultats_tour(tournoi)  # Ajouté ici pour saisir les résultats juste après le démarrage du tour.
-
-    def saisir_resultats_tour(self, tournoi):
-        if tournoi.tour_actuel == 0 or tournoi.tour_actuel > len(tournoi.tours):
-            print("Aucun tour en cours.")
-            return
-
-        tour = tournoi.tours[tournoi.tour_actuel - 1]
-        print(f"\n📝 Résultats pour {tour.nom} :")
-        for match in tour.liste_matchs:
-            print(f"Match : {match.joueur1.nom} vs {match.joueur2.nom}")
-            try:
-                r1 = float(input(f"Score de {match.joueur1.nom} : "))
-                r2 = float(input(f"Score de {match.joueur2.nom} : "))
-                match.resultat = (r1, r2)
-            except ValueError:
-                print("Entrée invalide. Match non enregistré.")
-
-        self.db.update_tournament(tournoi)
-        print("✅ Résultats enregistrés.")
-
-    def calcul_scores(self, tournoi):
-        scores = defaultdict(float)  # Utilisation de defaultdict pour initialiser les scores à 0.0
-
-        # Parcours de chaque tour du tournoi
-        for tour in tournoi.tours:
-            # Parcours des matchs dans chaque tour
-            for match in tour.liste_matchs:
-                if match.resultat:  # On vérifie que le résultat existe
-                    scores[match.joueur1.id_joueur] += match.resultat[0]  # Ajouter le score du joueur 1
-                    scores[match.joueur2.id_joueur] += match.resultat[1]  # Ajouter le score du joueur 2
-
-        return scores
-
-    def historique_matchs(self, tournoi):
-        rencontres = set()
-        for tour in tournoi.tours:
-            for match in tour.liste_matchs:
-                id1 = match.joueur1.id_joueur
-                id2 = match.joueur2.id_joueur
-                if id1 > id2:
-                    id1, id2 = id2, id1
-                rencontres.add((id1, id2))
-        return rencontres
-
-    def demarrer_tour_suivant(self, tournoi):
-        if tournoi.tour_actuel >= tournoi.nb_tours:
-            print("✅ Tous les tours ont été joués.")
-            return
-
-        # Demander la saisie des résultats pour le tour en cours
-        self.saisir_resultats_tour(tournoi)
-
-        # Calculer les scores et organiser les appariements pour le tour suivant
         scores = self.calcul_scores(tournoi)
-        joueurs = sorted(tournoi.joueurs, key=lambda j: (-scores.get(j.id_joueur, 0), j.nom))
-        rencontres_existantes = self.historique_matchs(tournoi)
+        joueurs_tries = sorted(tournoi.joueurs, key=lambda j: scores.get(j.id_joueur, 0), reverse=True)
+        matchs = []
 
-        appariements = []
-        deja_paires = set()
-        i = 0
+        while len(joueurs_tries) >= 2:
+            joueur1 = joueurs_tries.pop(0)
+            joueur2 = joueurs_tries.pop(0)
+            matchs.append(Match(joueur1, joueur2))
 
-        # Générer les appariements pour le tour suivant
-        while i < len(joueurs) - 1:
-            joueur1 = joueurs[i]
-            for j in range(i + 1, len(joueurs)):
-                joueur2 = joueurs[j]
-                paire = tuple(sorted([joueur1.id_joueur, joueur2.id_joueur]))
-                if paire not in rencontres_existantes and joueur2.id_joueur not in deja_paires:
-                    appariements.append((joueur1, joueur2))
-                    deja_paires.update([joueur1.id_joueur, joueur2.id_joueur])
-                    break
-            i += 1
+        nouveau_tour.liste_matchs = matchs
 
-        # Gérer les joueurs sans adversaire
-        if len(joueurs) % 2 == 1:
-            for joueur in joueurs:
-                if joueur.id_joueur not in deja_paires:
-                    appariements.append((joueur, Joueur("BYE", "", "", 0, -1)))
-                    break
+        print("\n📋 Matchs du round :")
+        for match in matchs:
+            print(f"{match.joueur1.nom} vs {match.joueur2.nom}")
 
-        # Créer un nouveau tour
-        tournoi.tour_actuel += 1
-        matches = [Match(j1, j2) for j1, j2 in appariements]
-        nouveau_tour = Tour(f"Round {tournoi.tour_actuel}", matches)
+        print("\n📝 Saisie des résultats :")
+        for match in matchs:
+            try:
+                score1 = float(input(f"Score pour {match.joueur1.nom} : "))
+                score2 = float(input(f"Score pour {match.joueur2.nom} : "))
+                match.resultat = (score1, score2)
+            except ValueError:
+                print("⚠️ Saisie invalide. Entrez un nombre.")
+
+        nouveau_tour.date_heure_fin = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         tournoi.tours.append(nouveau_tour)
         self.db.update_tournament(tournoi)
-        print(f"🌀 Round {tournoi.tour_actuel} généré avec {len(matches)} matchs.")
+        print(f"\n✅ {nom_round} terminé et enregistré.")
 
-        # Demander la saisie des résultats pour ce tour
-        self.saisir_resultats_tour(tournoi)
+    def afficher_tournois(self):
+        tournois = self.db.get_all_tournaments()
+        if not tournois:
+            print("Aucun tournoi trouvé.")
+            return
+        afficher_liste_tournois(tournois)
+
+    def calcul_scores(self, tournoi):
+        scores = defaultdict(float)
+        for tour in tournoi.tours:
+            for match in tour.liste_matchs:
+                if match.resultat:
+                    scores[match.joueur1.id_joueur] += match.resultat[0]
+                    scores[match.joueur2.id_joueur] += match.resultat[1]
+        return scores
 
     def afficher_joueurs_dun_tournoi(self):
         tournoi = self.selectionner_tournoi()
